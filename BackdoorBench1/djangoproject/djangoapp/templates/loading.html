@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>加载中...</title>
+    
+    <!-- 加载 Django 的静态文件标签库 -->
+    {% load static %}
+    
+    <!-- 使用 Django 的 static 标签加载 CSS 文件 -->
+    <link rel="stylesheet" href="{% static 'assets/css/style1.css' %}" />
+    
+    <!-- 自动跳转到目标页面 -->
+    <script type="text/javascript">
+      // 获取目标页面的 URL
+      var targetUrl = new URLSearchParams(window.location.search).get('target');
+      
+      // 如果目标 URL 存在，2秒后跳转
+      setTimeout(function() {
+        window.location.href = targetUrl ? targetUrl : '/';  // 默认跳转到主页，如果没有提供目标页面
+      }, 2000);  // 延迟 2 秒后跳转
+    </script>
+  </head>
+  <body>
+    <div class="bar">
+      <div class="ball"></div>
+    </div>
+    <p>页面正在加载，请稍等...</p>
+  </body>
+</html>

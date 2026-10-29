@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>后门盾</title>
+    <!-- 使用Django的static标签来引入CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+    <script defer src="{% static 'assets/plugins/fontawesome/js/all.min.js' %}"></script>
+    <link id="theme-style" rel="stylesheet" href="{% static 'assets/css/portal.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="top"></div>
+        <div class="bottom"></div>
+        <div class="center">
+            <h2>请登入</h2>
+            <!-- 使用第一个模板中的表单结构 -->
+            <form class="auth-form login-form" method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="email mb-3">
+                    <label class="sr-only" for="signin-email">Email</label>
+                    <input id="signin-email" name="email" type="email" class="form-control signin-email" placeholder="Email address" required="required">
+                </div>
+                <div class="password mb-3">
+                    <label class="sr-only" for="signin-password">Password</label>
+                    <input id="signin-password" name="password" type="password" class="form-control signin-password" placeholder="Password" required="required">
+                    <div class="extra mt-3 row justify-content-between">
+                        <div class="col-6 d-flex justify-content-center">
+                            <div class="forgot-password text-end">
+                                <a href="{% url 'reset-password' %}">重置 密码?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 错误消息 -->
+                {% if error %}
+                    <div class="alert alert-danger mb-3" role="alert">
+                        {{ error }}
+                    </div>
+                {% endif %}
+                <div class="text-center">
+                    <button type="submit" class="btn app-btn-primary w-100 theme-btn mx-auto">Log In</button>
+                </div>
+            </form>
+            <div class="auth-option text-center pt-5">没有账户? 立即注册 <a class="text-link" href="{% url 'signup' %}">here</a>.</div>
+        </div>
+    </div>
+    <!-- 引入新脚本 -->
+    <script defer src="{% static 'assets/js/newscript.js' %}"></script>
+</body>
+</html>

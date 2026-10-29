@@ -1,0 +1,16 @@
+# ---- Web 平台核心依赖 ----
+Django>=4.2,<5.0
+
+# ---- 算法运行依赖（体积较大，按需安装）----
+# pip install -r requirements-ml.txt
+# torch>=1.11
+# torchvision
+# scikit-learn
+# pandas
+# numpy
+# opencv-python
+# seaborn
+# tqdm
+# pyyaml
+# shap
+# grad-cam

@@ -1,0 +1,123 @@
+/* Basic reset and setup */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Sidebar Styles */
+#app-sidepanel {
+    position: fixed;
+    top: 0;
+    left: -250px;  /* Initially hidden off-screen */
+    height: 100%;
+    width: 250px;
+    background-color: #1e2d3b;
+    transition: left 0.3s ease;
+    z-index: 1000;
+}
+
+.sidepanel-visible {
+    left: 0;  /* Make sidebar visible */
+}
+
+.sidepanel-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+}
+
+.app-branding {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.logo-text {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.app-nav-main {
+    flex-grow: 1;
+}
+
+.app-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.nav-item {
+    margin-bottom: 20px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #d1d1d1;
+    font-size: 16px;
+}
+
+.nav-link:hover {
+    color: #fff;
+}
+
+.nav-icon {
+    margin-right: 10px;
+}
+
+.nav-link-text {
+    color: #d1d1d1;
+}
+
+.sidepanel-close {
+    font-size: 30px;
+    color: #fff;
+    text-decoration: none;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.sidepanel-drop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+}
+
+.sidepanel-drop.show {
+    display: block;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #app-sidepanel {
+        width: 200px;
+    }
+}
