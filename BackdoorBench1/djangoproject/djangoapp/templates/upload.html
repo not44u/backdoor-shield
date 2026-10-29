@@ -187,6 +187,9 @@
 											<option value="nc">NC</option>
 											<option value="spectral">Spectral</option>
 											<option value="dbd">DBD</option>
+											<option value="clp">CLP</option>
+											<option value="i-bau">I-BAU</option>
+											<option value="mcr">MCR</option>
 										</select>
 									</h2>
 								</div>
@@ -257,7 +260,10 @@
 				'nad': '防御全名：Neural Attention Distillation\n防御阶段：训练后\n防御措施：后门缓解\n输入类型：被后门攻击的模型、一组干净样本\n输出类型：安全的模型\n防御思想：对干净数据进行微调可以减轻后门效应',
 				'nc': '防御全名：Neural Cleanse\n防御阶段：训练后\n防御措施：后门检测、触发器识别、后门缓解\n输入类型：被后门攻击的模型、一组干净样本\n输出类型：安全的模型\n防御思想：通过搜索到目标类的捷径来逆转触发器',
 				'spectral': '防御全名：Spectral Signatures\n防御阶段：训练后\n防御措施：后门检测、后门缓解\n输入类型：被污染的数据集\n输出类型：安全的模型、干净的数据\n防御思想：中毒样品和清洁样品的特征表示具有不同的光谱特征',
-				'dbd': '防御全名：Backdoor Defense Via Decoupling The Training Process\n防御阶段：训练中\n输入类型：被污染的数据集\n输出类型：安全的模型、干净的数据\n防御措施：后门检测、后门抑制\n防御思想：由于标准的监督学习，有毒样本会在特征空间中聚集在一起'
+				'dbd': '防御全名：Backdoor Defense Via Decoupling The Training Process\n防御阶段：训练中\n输入类型：被污染的数据集\n输出类型：安全的模型、干净的数据\n防御措施：后门检测、后门抑制\n防御思想：由于标准的监督学习，有毒样本会在特征空间中聚集在一起',
+				'clp': '防御全名：Contrastive Learning Purification\n防御阶段：训练后\n防御措施：后门检测、后门缓解\n输入类型：被后门攻击的模型、一组干净样本\n输出类型：安全的模型\n防御思想：利用对比学习拉大干净特征与后门特征的间距，从而消除触发器映射',
+				'i-bau': '防御全名：Adversarial Unlearning of Backdoors via Implicit Hypergradient\n防御阶段：训练后\n防御措施：后门缓解\n输入类型：被后门攻击的模型、一组干净样本\n输出类型：安全的模型\n防御思想：把后门移除写成极小极大优化，用隐式超梯度求解触发器扰动',
+				'mcr': '防御全名：Mode Connectivity Repair\n防御阶段：训练后\n防御措施：后门缓解\n输入类型：被后门攻击的模型、一组干净样本\n输出类型：安全的模型\n防御思想：在干净微调模型与后门模型之间寻找损失曲面的低损耗通路（模式连通性），沿通路修复后门'
 				// Add descriptions for other algorithms here
 			};
 	

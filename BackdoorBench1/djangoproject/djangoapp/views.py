@@ -18,6 +18,10 @@ import zipfile
 from django.core.paginator import Paginator
 from django.urls import path
 from pathlib import Path
+import json
+import urllib.error
+import urllib.request
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # ---------------------------------------------------------------------------
 # 路径兼容层
@@ -74,6 +78,7 @@ subprocess.run = _run_command
 
 # Django的开发流程就是找到urls里对应的路径，再找到对应的函数，函数之间可以通过redirect串起来，可能多个函数一起渲染了一个页面。所以学会使用redirect和render是至关重要的！！！
 
+@ensure_csrf_cookie
 def index(request):
     return render(request, 'index.html')
 
@@ -333,7 +338,20 @@ def execute_defense(request):
             ]
             print("denfense命令路径：" + " ".join(denfense_command))
             subprocess.run(denfense_command, check=True)
-            
+        # ---- 新增防御：CLP / I-BAU / MCR ----
+        if defense_algorithm in ("clp", "i-bau", "mcr"):
+            denfense_path = "D:/study/work/backdoorbench/BackdoorBench-1/defense/%s/%s.py" % (defense_algorithm, defense_algorithm)
+            yaml_path = "D:/study/work/backdoorbench/BackdoorBench-1/config/defense/%s/cifar10.yaml" % defense_algorithm
+            result_file_path = user_email
+            denfense_command = [
+                "python", denfense_path,
+                "--yaml_path", yaml_path,
+                "--epochs", "2",
+                "--result_file", result_file_path
+            ]
+            print("denfense命令路径：" + " ".join(denfense_command))
+            subprocess.run(denfense_command, check=True)
+
         print("Job Done!")
         request.session['defense_algorithm'] = defense_algorithm
         request.session['user_email'] = user_email
@@ -592,4 +610,70 @@ def charts1_view(request):
 
 def loading_view(request):
     return render(request, 'loading.html')
+
+
+# ---------------------------------------------------------------------------
+# 大模型助手（DeepSeek）：网页右下角的对话气泡
+# 通过环境变量配置，未配置时返回 503，不影响其它功能。
+#   DEEPSEEK_API_KEY  必填
+#   DEEPSEEK_MODEL    可选，默认 deepseek-chat
+#   DEEPSEEK_API_URL  可选，默认 https://api.deepseek.com/chat/completions
+# ---------------------------------------------------------------------------
+ASSISTANT_SYSTEM_PROMPT = (
+    "你是 BackdoorBench-Web 平台的内置助手，精通深度学习后门攻防。"
+    "平台支持 BadNets、Blended、Label Consistent、SIG、Low Frequency、SSBA、"
+    "Input-aware、WaNet、LIRA、Ft-Trojan 等攻击，以及 FT、FP、NAD、NC、ANP、AC、"
+    "Spectral、ABL、DBD、CLP、I-BAU、MCR 等防御。"
+    "请用简体中文、面向非专业用户，简洁回答；涉及操作时给出明确步骤。"
+)
+
+
+@require_http_methods(["POST"])
+def assistant(request):
+    """接收前端对话请求，调用 DeepSeek Chat 并返回回复。"""
+    try:
+        payload = json.loads(request.body.decode("utf-8") or "{}")
+    except (ValueError, UnicodeDecodeError):
+        return JsonResponse({"error": "请求体不是合法的 JSON"}, status=400)
+
+    message = (payload.get("message") or "").strip()
+    if not message:
+        return JsonResponse({"error": "message 不能为空"}, status=400)
+
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        return JsonResponse(
+            {"error": "服务端未配置 DEEPSEEK_API_KEY，助手暂不可用"}, status=503
+        )
+
+    body = json.dumps({
+        "model": os.environ.get("DEEPSEEK_MODEL", "deepseek-chat"),
+        "messages": [
+            {"role": "system", "content": ASSISTANT_SYSTEM_PROMPT},
+            {"role": "user", "content": message[:4000]},
+        ],
+        "stream": False,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        os.environ.get("DEEPSEEK_API_URL", "https://api.deepseek.com/chat/completions"),
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + api_key,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        reply = data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as exc:
+        return JsonResponse({"error": "大模型接口返回 %s" % exc.code}, status=502)
+    except Exception as exc:  # noqa: BLE001
+        return JsonResponse({"error": "调用大模型失败：%s" % exc}, status=502)
+
+    return JsonResponse({"reply": reply})
+
 

@@ -6,6 +6,12 @@
 > **个人工作**：Web 平台层设计与实现（Django + SQLite）、攻防流程编排、可视化模块集成、工程化修复（路径解耦、异常降级、安全配置）。
 > **算法内核**：10 种攻击 / 12 种防御实现来自 BackdoorBench，本项目在其之上构建 Web 层，详见文末「归属与许可」。
 
+## 我的工作
+
+- **网站开发**：独立的 Django 工程（路由 / 视图 / 模板 / 会话鉴权 / 文件上传 / 分页列表），22 个页面与后台管理模板的嵌入改造
+- **防御机制接入**：在基准 9 种防御之外，新增 **CLP、I-BAU、MCR** 三种防御的实现与 Web 端接入（下拉选项、算法说明、配置、执行编排）
+- **大模型能力**：集成 DeepSeek Chat 作为平台内置助手（`/assistant/` 后端代理 + 右下角对话气泡），提供防御方法推荐与中毒特征解释
+
 ![首页](BackdoorBench1/pic/图片1.png)
 
 ---
@@ -20,6 +26,7 @@
 | 结果查看 | 读取最新日志并在页面回显 |
 | 可视化分析 | t-SNE、神经元激活、Shapley 值、Grad-CAM、频域显著性 |
 | 结果下载 | 实验产物 / 日志打包为 zip 下载 |
+| AI 助手 | 右下角对话气泡，接入 DeepSeek Chat，解答防御选型与指标含义 |
 | 实验列表 | 分页展示实验记录（演示数据） |
 
 <table>
@@ -66,6 +73,17 @@ python manage.py runserver 127.0.0.1:8001
 | `DJANGO_SECRET_KEY` | 内置开发密钥 | 生产环境务必覆盖 |
 | `DJANGO_DEBUG` | `1` | `0` 关闭调试 |
 | `DJANGO_ALLOWED_HOSTS` | `127.0.0.1,localhost` | 逗号分隔 |
+| `DEEPSEEK_API_KEY` | 空 | AI 助手密钥；未配置时助手返回 503，其它功能不受影响 |
+| `DEEPSEEK_MODEL` | `deepseek-chat` | 可选 |
+
+### AI 助手
+
+`POST /assistant/` 接收 `{"message": "..."}`，服务端以流式关闭的方式调用
+`https://api.deepseek.com/chat/completions`，返回 `{"reply": "..."}`。
+
+- 前端：`index.html` 右下角气泡，使用 `fetch` + `X-CSRFToken` 调用
+- 后端：`views.assistant`，仅依赖标准库 `urllib`，无需额外安装 SDK
+- 未配置密钥 / 上游报错时分别返回 `503` / `502`，并给出可读错误信息
 
 ### 运行防御 / 可视化（可选）
 
@@ -115,9 +133,11 @@ backdoor-shield/
 ## 相对原始代码的改动
 
 1. **路径解耦**：原 `views.py` 把作者两台机器的绝对路径（`D:/study/...`、`/home/not4u/...`）写死在 29 处，现统一通过 `local_path()` 映射到项目根目录，可跨机器运行。
-2. **异常降级**：`subprocess.run` 做了包装，命令失败不再抛 `CalledProcessError` 导致 500，而是记录日志并正常返回。
-3. **安全配置**：`SECRET_KEY` / `DEBUG` / `ALLOWED_HOSTS` 改为环境变量注入。
-4. **仓库整理**：补充 `.gitignore`，剔除虚拟环境、本地历史（`.history`）、数据库与实验产物。
+2. **新增防御接入**：CLP、I-BAU、MCR 三种防御补齐 Web 端（下拉选项、算法说明、`config/defense/mcr` 配置、执行分支）。
+3. **AI 助手**：新增 `/assistant/` 代理接口与前端对话气泡，接入 DeepSeek Chat。
+4. **异常降级**：`subprocess.run` 做了包装，命令失败不再抛 `CalledProcessError` 导致 500，而是记录日志并正常返回。
+5. **安全配置**：`SECRET_KEY` / `DEBUG` / `ALLOWED_HOSTS` 改为环境变量注入。
+6. **仓库整理**：补充 `.gitignore`，剔除虚拟环境、本地历史（`.history`）、数据库与实验产物。
 
 ---
 

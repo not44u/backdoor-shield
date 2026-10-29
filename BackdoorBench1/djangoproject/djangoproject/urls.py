@@ -43,5 +43,6 @@ urlpatterns = [
     path('account/docs/', views.docs_view, name='docs'),
     path('index/', views.all_view, name='all'),
     path('loading/', views.loading_view, name='loading'),
+    path('assistant/', views.assistant, name='assistant'),
     
 ]
